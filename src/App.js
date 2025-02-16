@@ -6,18 +6,26 @@ export default function App() {
   const [isGameOn, setIsGameOn] = useState(false)
   const [emojisData, setEmojisData] = useState([])
 
-  const getRandomSet = (arr) => {
-    const randomArr = []
+  function getDataSlice(data) {
+    const randomIndices = getRandomIndices(data)
+
+    const dataSlice = randomIndices.map(index => data[index])
+
+    return dataSlice
+  }
+
+  const getRandomIndices = (data) => {
+    const randomNums = []
     for (let i = 0; i < 5; i++) {
-      const randomIndex = Math.floor(Math.random() * arr.length)
-      if (!randomArr.includes(randomIndex)) {
-        randomArr.push(arr[randomIndex]) 
+      const randomIndex = Math.floor(Math.random() * data.length)
+      if (!randomNums.includes(randomIndex)) {
+        randomNums.push(randomIndex) 
       } else {
         i--
       }
 
     }
-    return randomArr
+    return randomNums
   }
 
   async function startGame(e) {
@@ -29,7 +37,7 @@ export default function App() {
         throw new Error("Could not fetch data")
       }//doesn't work properly
       const data = await response.json()
-      const dataSample = await getRandomSet(data)
+      const dataSample = await getDataSlice(data)
       setEmojisData(dataSample)
       setIsGameOn(true)
     } catch (e) {
