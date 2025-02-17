@@ -5,7 +5,9 @@ import MemoryCard from './components/MemoryCard'
 export default function App() {
   const [isGameOn, setIsGameOn] = useState(false)
   const [emojisData, setEmojisData] = useState([])
+  const [clickedCards, setClickedCards] = useState([])
 
+  console.log(clickedCards)
   function getDataSlice(data) {
     const randomIndices = getRandomIndices(data)
 
@@ -15,17 +17,29 @@ export default function App() {
   }
 
   const getRandomIndices = (data) => {
-    const randomNums = []
+    const randomNumbers = []
     for (let i = 0; i < 5; i++) {
       const randomIndex = Math.floor(Math.random() * data.length)
-      if (!randomNums.includes(randomIndex)) {
-        randomNums.push(randomIndex) 
+      if (!randomNumbers.includes(randomIndex)) {
+        randomNumbers.push(randomIndex) 
       } else {
         i--
       }
-
     }
-    return randomNums
+    return randomNumbers
+  }
+
+  function getEmojisArray(data) {
+    const pairedEmojisArray = [...data, ...data]
+
+    // Fisher–Yates shuffle Algorithm
+    for (let i = pairedEmojisArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const temp = pairedEmojisArray[i]
+      pairedEmojisArray[i] = pairedEmojisArray[j]
+      pairedEmojisArray[j] = temp
+    }
+    return pairedEmojisArray
   }
 
   async function startGame(e) {
@@ -38,15 +52,21 @@ export default function App() {
       }//doesn't work properly
       const data = await response.json()
       const dataSample = await getDataSlice(data)
-      setEmojisData(dataSample)
+      const pairedData = await getEmojisArray(dataSample)
+      setEmojisData(pairedData)
       setIsGameOn(true)
     } catch (e) {
       console.log("Error fetching data  ", e)
     }
   }
 
-  function turnCard() {
-    console.log("Memory card clicked")
+  function turnCard(name, index) {
+    const clickedCardEntry = clickedCards.find(card => card.index === index)
+    if (!clickedCardEntry && clickedCards.length < 2) { 
+      setClickedCards(prevClickedCards =>[...clickedCards,{name, index}])
+    }else if (!clickedCardEntry && clickedCards.length === 2) {
+        setClickedCards([{name, index}])
+    }
   }
 
   return (
